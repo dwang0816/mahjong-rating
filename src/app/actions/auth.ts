@@ -12,20 +12,21 @@ export interface MagicLinkState {
 
 export async function sendMagicLink(_prev: MagicLinkState, formData: FormData): Promise<MagicLinkState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const next = String(formData.get("next") ?? "/dashboard");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return { error: "Enter a valid email address." };
   }
 
   if (!supabaseEnv()) return { error: MISSING_CONFIG_MESSAGE };
-  const supabase = await createClient();
+
+  // Implicit flow: the emailed link lands on /auth/finish with the session in the URL fragment.
+  // Unlike PKCE it does not depend on a cookie from the browser that requested the link, so the
+  // link can be opened from a phone, a mail client's in-app browser, or another computer.
+  const supabase = await createClient({ flowType: "implicit" });
   const site = await getSiteUrl();
-  const redirect = new URL("/auth/callback", site);
-  if (next.startsWith("/") && !next.startsWith("//")) redirect.searchParams.set("next", next);
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: redirect.toString(), shouldCreateUser: true },
+    options: { emailRedirectTo: `${site}/auth/finish`, shouldCreateUser: true },
   });
 
   if (error) return { error: error.message };

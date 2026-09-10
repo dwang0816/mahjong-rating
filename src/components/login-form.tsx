@@ -20,8 +20,8 @@ export function LoginForm({ initialError, next }: { initialError: string | null;
       <div ref={boxRef} className="card p-6 max-w-md">
         <p className="text-jade font-semibold">Check your inbox</p>
         <p className="text-muted mt-2">
-          We sent a sign-in link to <span className="text-ivory">{state.email}</span>. Open it on this
-          device to land on your dashboard. The link only works for that address.
+          We sent a sign-in link to <span className="text-ivory">{state.email}</span>. Open it on any
+          device to land on your dashboard. The link only works for that address and expires after one use.
         </p>
       </div>
     );

@@ -57,11 +57,11 @@ player's net money for the session and must sum to zero.
 
 - Supabase's built-in mailer is rate limited on the free tier (a handful of emails per hour). For a
   real launch configure custom SMTP under *Authentication → SMTP Settings*.
-- The default email template uses a PKCE code, which means the link must be opened in the same
-  browser that requested it. To make links work from any device, edit the *Magic Link* template
-  under *Authentication → Email Templates* to point at
-  `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink`. The callback route
-  supports both formats.
+- Sign-in uses Supabase's implicit flow: the emailed link lands on `/auth/finish` with the session
+  in the URL fragment, so it works from any browser or device (PKCE links only work in the browser
+  that requested them, which breaks when a mail app opens the link). Add
+  `https://<your-domain>/auth/finish` to Supabase's redirect allow-list. The `/auth/callback` route
+  still accepts PKCE `code` and `token_hash` links if you switch templates later.
 
 ## Deploy to Vercel
 
