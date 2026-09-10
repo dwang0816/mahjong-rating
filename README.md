@@ -40,7 +40,10 @@ player's net money for the session and must sum to zero.
    `http://localhost:3000` and add `http://localhost:3000/auth/callback` to *Redirect URLs*.
    Later add your Vercel URL and `https://<your-app>.vercel.app/auth/callback` too.
 5. **Env vars.** Copy `.env.example` to `.env.local` and fill in the project URL and anon key from
-   *Project Settings → API*.
+   *Project Settings → API*. The server also accepts the names Vercel's Supabase integration sets
+   (`SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`, and so on). If you gave the
+   integration a prefix, set `SUPABASE_ENV_PREFIX` to that prefix. When nothing usable is found the
+   landing page lists which variable names it saw, so you can tell what is missing.
 6. Install and run:
 
    ```bash
