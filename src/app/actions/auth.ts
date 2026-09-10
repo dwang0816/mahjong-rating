@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createPlainClient } from "@supabase/supabase-js";
 import { getSiteUrl } from "@/lib/site-url";
 import { MISSING_CONFIG_MESSAGE, supabaseEnv } from "@/lib/supabase/env";
 
@@ -16,12 +16,16 @@ export async function sendMagicLink(_prev: MagicLinkState, formData: FormData): 
     return { error: "Enter a valid email address." };
   }
 
-  if (!supabaseEnv()) return { error: MISSING_CONFIG_MESSAGE };
+  const env = supabaseEnv();
+  if (!env) return { error: MISSING_CONFIG_MESSAGE };
 
-  // Implicit flow: the emailed link lands on /auth/finish with the session in the URL fragment.
-  // Unlike PKCE it does not depend on a cookie from the browser that requested the link, so the
-  // link can be opened from a phone, a mail client's in-app browser, or another computer.
-  const supabase = await createClient({ flowType: "implicit" });
+  // Implicit flow: the emailed link lands on /auth/finish with the session in the URL fragment, so it
+  // works from any browser or device. @supabase/ssr forces PKCE (which ties the link to the browser
+  // that requested it), so the request goes through the plain supabase-js client. No cookies needed
+  // just to send an email.
+  const supabase = createPlainClient(env.url, env.anonKey, {
+    auth: { flowType: "implicit", persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
   const site = await getSiteUrl();
 
   const { error } = await supabase.auth.signInWithOtp({

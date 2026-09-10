@@ -5,8 +5,9 @@ import { createBrowserClient } from "@supabase/ssr";
 import { animate } from "animejs";
 
 /**
- * Reads the session out of the magic link's URL fragment, stores it in cookies (so the server can see
- * it), then sends the player to the dashboard with a full navigation.
+ * Magic links land here with `#access_token=…&refresh_token=…` in the URL fragment. The fragment never
+ * reaches the server, so this component stores the session in cookies (via the ssr browser client)
+ * and then does a full navigation to the dashboard so the server sees it.
  */
 export function FinishSignIn({ url, anonKey }: { url: string; anonKey: string }) {
   const [status, setStatus] = useState<"working" | "error">("working");
@@ -28,41 +29,44 @@ export function FinishSignIn({ url, anonKey }: { url: string; anonKey: string })
         setMessage(msg);
       });
 
+    const query = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+    // Old-style PKCE link (or a link generated before this deploy): let the callback route try it.
+    if (query.get("code") || query.get("token_hash")) {
+      window.location.replace(`/auth/callback${window.location.search}`);
+      return;
+    }
+
     const linkError = hash.get("error_description") ?? hash.get("error");
     if (linkError) {
       fail(linkError.replace(/\+/g, " "));
       return;
     }
-    if (!hash.get("access_token")) {
+
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    if (!accessToken || !refreshToken) {
       fail("This link is missing its sign-in token. Request a new one.");
       return;
     }
 
-    const supabase = createBrowserClient(url, anonKey, { auth: { flowType: "implicit" } });
-    let done = false;
-
-    const finish = () => {
-      if (done) return;
-      done = true;
-      window.history.replaceState(null, "", window.location.pathname);
-      window.location.replace("/dashboard");
-    };
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) finish();
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) finish();
-    });
-
-    const timer = window.setTimeout(() => {
-      if (!done) fail("The link could not be verified. It may have expired or already been used.");
-    }, 10000);
+    let cancelled = false;
+    const supabase = createBrowserClient(url, anonKey, { auth: { detectSessionInUrl: false } });
+    supabase.auth
+      .setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error || !data.session) {
+          fail(error?.message ?? "The link could not be verified. It may have expired or already been used.");
+          return;
+        }
+        window.history.replaceState(null, "", window.location.pathname);
+        window.location.replace("/dashboard");
+      });
 
     return () => {
-      sub.subscription.unsubscribe();
-      window.clearTimeout(timer);
+      cancelled = true;
     };
   }, [url, anonKey]);
 
