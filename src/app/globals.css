@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0d1310;
+  --bg-2: #111a15;
+  --surface: #172119;
+  --surface-2: #1e2b22;
+  --border: #2a3a30;
+  --ivory: #f2e9d6;
+  --muted: #98a79c;
+  --jade: #46c394;
+  --jade-deep: #1f7d5e;
+  --gold: #dfae4a;
+  --seal: #d9483f;
+  --sky: #5fa8e6;
+  --plum: #b985dc;
+  --coral: #e6845f;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-ivory: var(--ivory);
+  --color-muted: var(--muted);
+  --color-jade: var(--jade);
+  --color-jade-deep: var(--jade-deep);
+  --color-gold: var(--gold);
+  --color-seal: var(--seal);
+  --color-sky: var(--sky);
+  --color-plum: var(--plum);
+  --color-coral: var(--coral);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(70, 195, 148, 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(223, 174, 74, 0.07), transparent 60%),
+    var(--bg);
+  color: var(--ivory);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+.card {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 20px 40px -30px rgba(0, 0, 0, 0.6);
+}
+
+.input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  color: var(--ivory);
+  outline: none;
+  transition: border-color 150ms;
+}
+.input:focus {
+  border-color: var(--jade);
+}
+.input::placeholder {
+  color: #5f6f65;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  transition: transform 120ms, background 150ms, opacity 150ms;
+  cursor: pointer;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: var(--jade);
+  color: #06120c;
+}
+.btn-primary:hover {
+  background: #5ad3a5;
+}
+.btn-ghost {
+  border: 1px solid var(--border);
+  color: var(--ivory);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.tile {
+  background: linear-gradient(160deg, #fbf5e6, #e6dcc3);
+  border-radius: 0.45rem;
+  box-shadow:
+    0 2px 0 #cbbf9f,
+    0 6px 14px -6px rgba(0, 0, 0, 0.6);
+  color: #1c3b2c;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-fraunces), serif;
+  font-weight: 700;
+}
+
+/* elements that anime.js reveals start hidden to avoid a flash */
+.reveal {
+  opacity: 0;
+}
