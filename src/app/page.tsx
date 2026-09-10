@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/login-form";
 import { LandingTiles } from "@/components/landing-tiles";
+import { MISSING_CONFIG_MESSAGE, supabaseEnv } from "@/lib/supabase/env";
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
@@ -22,7 +23,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             stakes and venues pay, and find out who you should be sitting with.
           </p>
         </div>
-        <LoginForm initialError={error} next={next} />
+        {supabaseEnv() ? (
+          <LoginForm initialError={error} next={next} />
+        ) : (
+          <div className="card p-6 max-w-md border-seal/50">
+            <p className="text-seal font-semibold">Deployment not configured</p>
+            <p className="text-muted mt-2 text-sm">{MISSING_CONFIG_MESSAGE}</p>
+          </div>
+        )}
         <Link href="/demo" className="text-sm text-jade hover:underline -mt-4">
           See a sample profile first →
         </Link>

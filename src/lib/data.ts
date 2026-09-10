@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { supabaseEnv } from "@/lib/supabase/env";
 import type { Game, GamePlayer, Player, Variant } from "@/lib/types";
 import { stakeLabel } from "@/lib/types";
 
@@ -53,6 +54,7 @@ export interface PlayerStats {
 }
 
 export async function getCurrentPlayer(): Promise<Player | null> {
+  if (!supabaseEnv()) return null;
   const supabase = await createClient();
   const {
     data: { user },

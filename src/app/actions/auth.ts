@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/site-url";
+import { MISSING_CONFIG_MESSAGE, supabaseEnv } from "@/lib/supabase/env";
 
 export interface MagicLinkState {
   sent?: boolean;
@@ -16,6 +17,7 @@ export async function sendMagicLink(_prev: MagicLinkState, formData: FormData): 
     return { error: "Enter a valid email address." };
   }
 
+  if (!supabaseEnv()) return { error: MISSING_CONFIG_MESSAGE };
   const supabase = await createClient();
   const site = await getSiteUrl();
   const redirect = new URL("/auth/callback", site);
